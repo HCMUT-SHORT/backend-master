@@ -1,6 +1,19 @@
 @backend_HostAddress = http://localhost:5292
 
-GET {{backend_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{backend_HostAddress}}/auth/login
+Content-Type: application/json
 
+{
+    "email": "test123@gmail.com",
+    "password": "123456"
+}
 ###
+
+POST {{backend_HostAddress}}/auth/signup
+Content-Type: application/json
+
+{
+    "email": "test123@gmail.com",
+    "password": "123456",
+    "fullname": "Huynh Ngoc Nhon"
+}

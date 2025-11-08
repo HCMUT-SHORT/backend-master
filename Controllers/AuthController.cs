@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Supabase.Gotrue;
+using System.Threading.Tasks;
+using System.Text.Json;
+
 
 namespace backend.Controllers
 {
@@ -13,10 +17,105 @@ namespace backend.Controllers
             _supabaseService = supabaseService;
         }
 
-        [HttpGet("test")]
-        public IActionResult Test()
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginAuthRequest request)
         {
-            return Ok(new { message = "Supabase service is working!" });
+            try
+            {
+                var response = await _supabaseService.GetClient().Auth.SignIn(request.Email, request.Password);
+
+                if (response == null || response.User == null || response.User.Id == null)
+                    return BadRequest("There is an error when login into account");
+
+                string? fullName = null;
+                if (response.User.UserMetadata != null && response.User.UserMetadata.TryGetValue("full_name", out var nameValue))
+                {
+                    fullName = nameValue?.ToString();
+                }
+
+                return Ok(new
+                {
+                    message = "Login successful",
+                    user = new
+                    {
+                        response.User.Id,
+                        fullName
+                    },
+                    token = response.AccessToken
+                });
+            }
+            catch (Supabase.Gotrue.Exceptions.GotrueException ex)
+            {
+                string msg = "An error occurred";
+                using var jsonDoc = JsonDocument.Parse(ex.Message);
+                var root = jsonDoc.RootElement;
+
+                if (root.TryGetProperty("msg", out var msgProp))
+                    msg = msgProp.GetString() ?? "An error occurred";
+
+                return BadRequest(msg);
+            }
         }
+
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
+        {
+            try
+            {
+                var options = new SignUpOptions
+                {
+                    Data = new Dictionary<string, object>
+                    {
+                        { "full_name", request.FullName }
+                    }
+                };
+
+                var response = await _supabaseService.GetClient().Auth.SignUp(request.Email, request.Password, options);
+
+                if (response == null || response.User == null || response.User.Id == null)
+                    return BadRequest("There is an error when creating account");
+
+                string? fullName = null;
+                if (response.User.UserMetadata != null && response.User.UserMetadata.TryGetValue("full_name", out var nameValue))
+                {
+                    fullName = nameValue?.ToString();
+                }
+
+                return Ok(new
+                {
+                    message = "Signup successful",
+                    user = new
+                    {
+                        response.User.Id,
+                        fullName
+                    },
+                    token = response.AccessToken
+                });
+            }
+            catch (Supabase.Gotrue.Exceptions.GotrueException ex)
+            {
+                string msg = "An error occurred";
+                using var jsonDoc = JsonDocument.Parse(ex.Message);
+                var root = jsonDoc.RootElement;
+
+                if (root.TryGetProperty("msg", out var msgProp))
+                    msg = msgProp.GetString() ?? "An error occurred";
+
+                return BadRequest(msg);
+            }
+        }
+    }
+
+    public class LoginAuthRequest
+    {
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+    }
+
+    public class SignUpRequest
+    {
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public required string FullName { get; set; }
     }
 }
