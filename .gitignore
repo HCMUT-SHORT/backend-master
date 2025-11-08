@@ -1,2 +1,27 @@
-# Do not commit local secrets
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Secrets
 appsettings.Development.json
+
+# ASP.NET temporary files
+*.db
+*.sqlite
+
+# Others
+*.DS_Store
