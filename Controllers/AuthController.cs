@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Supabase.Gotrue;
-using System.Threading.Tasks;
 using System.Text.Json;
-
 
 namespace backend.Controllers
 {
@@ -35,7 +33,6 @@ namespace backend.Controllers
 
                 return Ok(new
                 {
-                    message = "Login successful",
                     user = new
                     {
                         response.User.Id,
@@ -83,7 +80,6 @@ namespace backend.Controllers
 
                 return Ok(new
                 {
-                    message = "Signup successful",
                     user = new
                     {
                         response.User.Id,
@@ -100,6 +96,51 @@ namespace backend.Controllers
 
                 if (root.TryGetProperty("msg", out var msgProp))
                     msg = msgProp.GetString() ?? "An error occurred";
+
+                return BadRequest(msg);
+            }
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> Profile([FromHeader(Name = "Authorization")] string? authHeader)
+        {
+            if (string.IsNullOrEmpty(authHeader))
+                return Unauthorized("Missing Authorization header");
+
+            var token = authHeader.Replace("Bearer ", "").Trim();
+
+            try
+            {
+                var user = await _supabaseService.GetClient().Auth.GetUser(token);
+
+                if (user == null || user.Id == null)
+                    return BadRequest("Invalid or expired token");
+
+                string? fullName = null;
+                if (user.UserMetadata != null && user.UserMetadata.TryGetValue("full_name", out var nameValue))
+                {
+                    fullName = nameValue?.ToString();
+                }
+
+                return Ok(new
+                {
+                    user = new
+                    {
+                        user.Id,
+                        fullName
+                    }
+                });
+            }
+            catch (Supabase.Gotrue.Exceptions.GotrueException ex)
+            {
+                string msg = "An error occurred";
+                try
+                {
+                    using var jsonDoc = JsonDocument.Parse(ex.Message);
+                    if (jsonDoc.RootElement.TryGetProperty("msg", out var msgProp))
+                        msg = msgProp.GetString() ?? msg;
+                }
+                catch { }
 
                 return BadRequest(msg);
             }
