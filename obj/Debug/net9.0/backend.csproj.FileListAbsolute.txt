@@ -48,3 +48,6 @@
 /Users/ngocnhon/Desktop/backend/obj/Debug/net9.0/backend.pdb
 /Users/ngocnhon/Desktop/backend/obj/Debug/net9.0/backend.genruntimeconfig.cache
 /Users/ngocnhon/Desktop/backend/obj/Debug/net9.0/ref/backend.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll
