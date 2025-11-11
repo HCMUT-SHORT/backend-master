@@ -8,6 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<SupabaseClientService>();
+builder.Services.AddSingleton<GeminiService>();
 
 builder.Services.AddCors(options =>
 {

@@ -51,3 +51,10 @@
 /Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
 /Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Google.Apis.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Google.Apis.Auth.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Google.Apis.Core.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/Google.GenAI.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/System.CodeDom.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/System.Management.dll
+/Users/ngocnhon/Desktop/backend/bin/Debug/net9.0/runtimes/win/lib/net7.0/System.Management.dll
