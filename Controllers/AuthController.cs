@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Supabase.Gotrue;
 using System.Text.Json;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -77,6 +78,15 @@ namespace backend.Controllers
                 {
                     fullName = nameValue?.ToString();
                 }
+
+                var newUser = new NewUser
+                {
+                    Id = Guid.Parse(response.User.Id),
+                    Name = request.FullName,
+                    Email = request.Email
+                };
+
+                await _supabaseService.GetClient().From<NewUser>().Insert(newUser);
 
                 return Ok(new
                 {
