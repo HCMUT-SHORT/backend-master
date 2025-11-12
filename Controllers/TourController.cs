@@ -96,8 +96,10 @@ namespace backend.Controllers
             Now, generate the JSON output for the requested destination:
             ";
 
+            var destinationImage = await FetchImageUrlAsync(request.Destination);
             var newTour = new Tour
             {
+                ImageUrl = destinationImage,
                 Destination = request.Destination,
                 CheckInDate = request.CheckInDate,
                 CheckOutDate = request.CheckOutDate,

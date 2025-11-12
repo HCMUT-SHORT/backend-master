@@ -12,6 +12,9 @@ namespace backend.Models
         [Column("destination")]
         public string? Destination { get; set; }
 
+        [Column("imageUrl")]
+        public string? ImageUrl { get; set; }
+
         [Column("checkindate")]
         public string? CheckInDate { get; set; }
 
