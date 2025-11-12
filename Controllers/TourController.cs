@@ -165,7 +165,7 @@ namespace backend.Controllers
                 });
             }
             await _supabaseService.GetClient().From<PlaceToVisit>().Insert(placesToVisitList);
-            
+
             var placesToStayJson = root.GetProperty("places_to_stay").EnumerateArray().ToList();
             var placesToStayList = new List<PlaceToStay>();
             foreach (var item in placesToStayJson)
@@ -189,7 +189,7 @@ namespace backend.Controllers
             await _supabaseService.GetClient().From<PlaceToStay>().Insert(placesToStayList);
 
             return Ok(new { insertTourId });
-        } 
+        }
 
         private async Task<string?> FetchImageUrlAsync(string placeName)
         {
@@ -208,7 +208,39 @@ namespace backend.Controllers
             {
                 return null;
             }
-        }  
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTour(string id)
+        {
+            var tourId = Guid.Parse(id);
+            var tour = await _supabaseService.GetClient().From<Tour>().Where(t => t.Id == tourId).Get();
+            return Ok(tour.Content);
+        }
+
+        [HttpGet("placestovisit/{id}")]
+        public async Task<IActionResult> GetTourPlacesToVisit(string id)
+        {
+            var tourId = Guid.Parse(id);
+            var placesToVisit = await _supabaseService.GetClient().From<PlaceToVisit>().Where(place => place.TourId == tourId).Get();
+            return Ok(placesToVisit.Content);
+        }
+
+        [HttpGet("placestostay/{id}")]
+        public async Task<IActionResult> GetTourPlacesToStay(string id)
+        {
+            var tourId = Guid.Parse(id);
+            var placesToStay = await _supabaseService.GetClient().From<PlaceToStay>().Where(place => place.TourId == tourId).Get();
+            return Ok(placesToStay.Content);
+        }
+
+        [HttpGet("transportation/{id}")]
+        public async Task<IActionResult> GetTourTransporation(string id)
+        {
+            var tourId = Guid.Parse(id);
+            var transportation = await _supabaseService.GetClient().From<Transportation>().Where(place => place.TourId == tourId).Get();
+            return Ok(transportation.Content);
+        }
     }
 
     public class CreateTourRequest

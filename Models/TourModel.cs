@@ -7,6 +7,7 @@ namespace backend.Models
     public class Tour : BaseModel
     {
         [PrimaryKey("id", false)]
+        [Column("id")]
         public Guid Id { get; set; }
 
         [Column("destination")]

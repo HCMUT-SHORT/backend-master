@@ -35,3 +35,20 @@ Content-Type: application/json
     "TravelType": "Exploration",
     "UserId": "7e4229ac-2014-46d1-9bd6-2591fe6a9a85"
 }
+
+###
+GET {{backend_HostAddress}}/tour/958bf228-72d9-4cc3-abc3-529208228147
+Content-Type: application/json
+
+###
+GET {{backend_HostAddress}}/tour/placestovisit/958bf228-72d9-4cc3-abc3-529208228147
+Content-Type: application/json
+
+###
+GET {{backend_HostAddress}}/tour/placestostay/958bf228-72d9-4cc3-abc3-529208228147
+Content-Type: application/json
+
+###
+###
+GET {{backend_HostAddress}}/tour/transportation/958bf228-72d9-4cc3-abc3-529208228147
+Content-Type: application/json
