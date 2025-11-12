@@ -31,58 +31,57 @@ namespace backend.Controllers
             from {request.CheckInDate} to {request.CheckOutDate}.
             The plan must be suitable for {request.TravelType}, with a budget between {request.MinBugget} and {request.MaxBugget} VND.
             All prices, including transportation, ticket_price, and hotel prices, MUST be in Vietnamese đồng (VND), even if the destination is outside Vietnam.
+            Must have 4 type of transportation: flight, train, bus, self-drive. But if it not possbile to travel from Ho Chi Minh to {request.Destination}, fill detail field not possible.
             Write all text in Vietnamese. Keep each 'details' field 1–2 sentences long.
 
             OUTPUT FORMAT (MUST FOLLOW EXACTLY):
             {{
-            ""transportation"": {{
-                ""flight"": {{
-                ""details"": ""string"",
-                ""price"": number,
-                ""booking_url"": ""string or empty"",
-                ""isSelectedTransport"": false
+            ""transportation"": [
+                {{
+                    ""type"": ""flight"",
+                    ""details"": ""string"",
+                    ""price"": number,
+                    ""bookingurl"": ""string or empty"",
                 }},
-                ""train"": {{
-                ""details"": ""string"",
-                ""price"": number,
-                ""booking_url"": ""string or empty"",
-                ""isSelectedTransport"": false
+                {{
+                    ""type"": ""train"",
+                    ""details"": ""string"",
+                    ""price"": number,
+                    ""bookingurl"": ""string or empty"",
                 }},
-                ""bus"": {{
-                ""details"": ""string"",
-                ""price"": number,
-                ""booking_url"": ""string or empty"",
-                ""isSelectedTransport"": false
+                    ""type"": ""bus"",
+                    ""details"": ""string"",
+                    ""price"": number,
+                    ""bookingurl"": ""string or empty"",
                 }},
-                ""self-drive"": {{
-                ""details"": ""string"",
-                ""price"": number,
-                ""isSelectedTransport"": false
+                    ""type"": ""self-drive"",
+                    ""details"": ""string"",
+                    ""price"": number,
+                    ""bookingurl"": ""Empty"",
                 }}
-            }},
+            ],
             ""places_to_visit"": [
                 {{
-                ""placeName"": ""string"",
-                ""details"": ""string"",
-                ""image_url"": ""string"",
-                ""ticket_price"": number,
-                ""best_time_to_visit"": ""string"",
-                ""day_visit"": """",
-                ""rating"": ""string"",
-                ""total_user_rating"": ""string""
+                    ""placename"": ""string"",
+                    ""details"": ""string"",
+                    ""imageurl"": ""string"",
+                    ""besttimetovisit"": ""string"",
+                    ""ticketprice"": number,
+                    ""rating"": number,
+                    ""totaluserrating"": number
                 }}
-                // total 10 items
+                // total 9 items
             ],
             ""places_to_stay"": [
                 {{
-                ""placeName"": ""string"",
-                ""details"": ""string"",
-                ""image_url"": ""string"",
-                ""price"": number,
-                ""rating"": ""string"",
-                ""total_user_rating"": ""string""
+                    ""placename"": ""string"",
+                    ""details"": ""string"",
+                    ""imageurl"": ""string"",
+                    ""price"": number,
+                    ""rating"": number,
+                    ""totaluserrating"": number
                 }}
-                // total 4 items
+                // total 5 items
             ]
             }}
 
@@ -96,6 +95,21 @@ namespace backend.Controllers
 
             Now, generate the JSON output for the requested destination:
             ";
+
+            var newTour = new Tour
+            {
+                Destination = request.Destination,
+                CheckInDate = request.CheckInDate,
+                CheckOutDate = request.CheckOutDate,
+                MinBugget = request.MinBugget,
+                MaxBugget = request.MaxBugget,
+                TravelType = request.TravelType,
+                CreatedAt = DateTime.Today,
+                CreatedBy = Guid.Parse(request.UserId)
+            };
+
+            var insertTour = await _supabaseService.GetClient().From<Tour>().Insert(newTour, new Supabase.Postgrest.QueryOptions { Returning = Supabase.Postgrest.QueryOptions.ReturnType.Representation });
+            var insertTourId = insertTour.Models.FirstOrDefault()?.Id ?? throw new Exception("Failed to insert tour.");
 
             var result = await _geminiService.GenerateContentAsync(prompt);
             if (result.StartsWith("```"))
@@ -111,61 +125,68 @@ namespace backend.Controllers
             var itineraryDoc = JsonDocument.Parse(result);
             var root = itineraryDoc.RootElement;
 
-            var placesToVisit = root.GetProperty("places_to_visit").EnumerateArray().ToList();
-            var placesToStay = root.GetProperty("places_to_stay").EnumerateArray().ToList();
-
-            var updatedPlacesToVisit = new List<Dictionary<string, object>>();
-            foreach (var place in placesToVisit)
+            var transportationJson = root.GetProperty("transportation").EnumerateArray().ToList();
+            var transportationList = new List<Transportation>();
+            foreach (var item in transportationJson)
             {
-                var dict = place.EnumerateObject().ToDictionary(p => p.Name, p => (object)p.Value.Clone());
-
-                var placeName = dict["placeName"]?.ToString();
-                if (!string.IsNullOrWhiteSpace(placeName))
+                transportationList.Add(new Transportation
                 {
-                    var imageUrl = await FetchImageUrlAsync(placeName);
-                    dict["image_url"] = imageUrl ?? dict["image_url"];
-                }
-
-                updatedPlacesToVisit.Add(dict);
+                    TourId = insertTourId,
+                    Type = item.GetProperty("type").GetString(),
+                    Detail = item.GetProperty("details").GetString(),
+                    Price = item.GetProperty("price").GetInt64(),
+                    BookingUrl = item.GetProperty("bookingurl").GetString(),
+                    IsSelected = false
+                });
             }
+            await _supabaseService.GetClient().From<Transportation>().Insert(transportationList);
 
-            var updatedPlacesToStay = new List<Dictionary<string, object>>();
-            foreach (var place in placesToStay)
+            var placesToVisitJson = root.GetProperty("places_to_visit").EnumerateArray().ToList();
+            var placesToVisitList = new List<PlaceToVisit>();
+            foreach (var item in placesToVisitJson)
             {
-                var dict = place.EnumerateObject().ToDictionary(p => p.Name, p => (object)p.Value.Clone());
+                var placeName = item.GetProperty("placename").GetString();
+                if (string.IsNullOrWhiteSpace(placeName)) continue;
 
-                var placeName = dict["placeName"]?.ToString();
-                if (!string.IsNullOrWhiteSpace(placeName))
+                var imageUrl = await FetchImageUrlAsync(placeName);
+                placesToVisitList.Add(new PlaceToVisit
                 {
-                    var imageUrl = await FetchImageUrlAsync(placeName);
-                    dict["image_url"] = imageUrl ?? dict["image_url"];
-                }
-
-                updatedPlacesToStay.Add(dict);
+                    TourId = insertTourId,
+                    Name = placeName,
+                    ImageUrl = imageUrl,
+                    Detail = item.GetProperty("details").GetString(),
+                    BestTimeToVisit = item.GetProperty("besttimetovisit").GetString(),
+                    Price = item.GetProperty("ticketprice").GetInt64(),
+                    Rating = (float?)item.GetProperty("rating").GetDouble(),
+                    TotalRating = item.GetProperty("totaluserrating").GetInt64(),
+                    DayVisit = 0
+                });
             }
-
-            var updatedData = new Dictionary<string, object>
+            await _supabaseService.GetClient().From<PlaceToVisit>().Insert(placesToVisitList);
+            
+            var placesToStayJson = root.GetProperty("places_to_stay").EnumerateArray().ToList();
+            var placesToStayList = new List<PlaceToStay>();
+            foreach (var item in placesToStayJson)
             {
-                ["transportation"] = root.GetProperty("transportation").Clone(),
-                ["places_to_visit"] = updatedPlacesToVisit,
-                ["places_to_stay"] = updatedPlacesToStay
-            };
+                var placeName = item.GetProperty("placename").GetString();
+                if (string.IsNullOrWhiteSpace(placeName)) continue;
 
-            var tour = new Tour
-            {
-                Destination = request.Destination,
-                CheckInDate = request.CheckInDate,
-                CheckOutDate = request.CheckOutDate,
-                MinBugget = request.MinBugget,
-                MaxBugget = request.MaxBugget,
-                TravelType = request.TravelType,
-                CreatedBy = Guid.Parse(request.UserId),
-                Information = JsonSerializer.Serialize(updatedData)
-            };
+                var imageUrl = await FetchImageUrlAsync(placeName);
+                placesToStayList.Add(new PlaceToStay
+                {
+                    TourId = insertTourId,
+                    Name = placeName,
+                    ImageUrl = imageUrl,
+                    Detail = item.GetProperty("details").GetString(),
+                    Price = item.GetProperty("price").GetInt64(),
+                    Rating = (float?)item.GetProperty("rating").GetDouble(),
+                    TotalRating = item.GetProperty("totaluserrating").GetInt64(),
+                    IsSelected = false
+                });
+            }
+            await _supabaseService.GetClient().From<PlaceToStay>().Insert(placesToStayList);
 
-            await _supabaseService.GetClient().From<Tour>().Insert(tour);
-
-            return Ok(new { itinerary = updatedData });
+            return Ok(new { insertTourId });
         } 
 
         private async Task<string?> FetchImageUrlAsync(string placeName)

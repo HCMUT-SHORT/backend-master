@@ -32,6 +32,6 @@ Content-Type: application/json
     "CheckOutDate": "23/2/2025",
     "MinBugget": "6000000",
     "MaxBugget": "12000000",
-    "TravelType": "Thám hiểm",
+    "TravelType": "Exploration",
     "UserId": "7e4229ac-2014-46d1-9bd6-2591fe6a9a85"
 }

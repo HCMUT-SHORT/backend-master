@@ -1,12 +1,14 @@
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-using System.Text.Json;
 
 namespace backend.Models
 {
     [Table("tour")]
     public class Tour : BaseModel
     {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
         [Column("destination")]
         public string? Destination { get; set; }
 
@@ -28,7 +30,7 @@ namespace backend.Models
         [Column("createdBy")]
         public Guid? CreatedBy { get; set; }
 
-        [Column("information")]
-        public object? Information { get; set; }
+        [Column("createdAt")]
+        public DateTime? CreatedAt { get; set; }
     }
 }
