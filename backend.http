@@ -27,10 +27,11 @@ POST {{backend_HostAddress}}/tour/create
 Content-Type: application/json 
 
 {
-    "Destination": "Tokyo",
+    "Destination": "Osaka",
     "CheckInDate": "21/2/2025",
     "CheckOutDate": "23/2/2025",
     "MinBugget": "6000000",
     "MaxBugget": "12000000",
-    "TravelType": "Thám hiểm"
+    "TravelType": "Thám hiểm",
+    "UserId": "7e4229ac-2014-46d1-9bd6-2591fe6a9a85"
 }

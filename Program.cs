@@ -2,6 +2,7 @@ using backend;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

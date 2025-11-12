@@ -12,7 +12,7 @@ public class GeminiService
     public async Task<string> GenerateContentAsync(string prompt)
     {
         var response = await _client.Models.GenerateContentAsync(
-            model: "gemini-2.5-flash",
+            model: "gemini-2.0-flash",
             contents: prompt
         );
 
