@@ -241,6 +241,25 @@ namespace backend.Controllers
             var transportation = await _supabaseService.GetClient().From<Transportation>().Where(place => place.TourId == tourId).Get();
             return Ok(transportation.Content);
         }
+
+        [HttpPut("placestovisit")]
+        public async Task<IActionResult> UpdateTourPlacesToVisit([FromBody] List<UpdateTourPlacesToVisitDto> updates)
+        {
+            var client = _supabaseService.GetClient();
+
+            foreach (var update in updates)
+            {
+                var placeId = Guid.Parse(update.Id);
+                var place = await client.From<PlaceToVisit>().Where(place => place.Id == placeId).Single();
+
+                if (place?.DayVisit == null) continue;
+
+                place.DayVisit = update.DayVisit;
+                await place.Update<PlaceToVisit>();
+            }
+
+            return Ok("Update Successful");
+        }
     }
 
     public class CreateTourRequest
@@ -252,5 +271,11 @@ namespace backend.Controllers
         public string CheckOutDate { get; set; } = string.Empty;
         public int MinBugget { get; set; }
         public int MaxBugget { get; set; }
+    }
+
+    public class UpdateTourPlacesToVisitDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public int DayVisit { get; set; }
     }
 }

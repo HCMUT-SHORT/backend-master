@@ -49,6 +49,14 @@ GET {{backend_HostAddress}}/tour/placestostay/958bf228-72d9-4cc3-abc3-5292082281
 Content-Type: application/json
 
 ###
-###
 GET {{backend_HostAddress}}/tour/transportation/958bf228-72d9-4cc3-abc3-529208228147
 Content-Type: application/json
+
+###
+PUT {{backend_HostAddress}}/tour/placestovisit
+Content-Type: application/json
+
+[
+    {"id": "5595df4f-c10b-488b-84e6-f439f645b8cc", "dayVisit": 2},
+    {"id": "66001fd1-0821-4826-b431-0cb098ea4b67", "dayVisit": 3}
+]
