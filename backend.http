@@ -60,3 +60,23 @@ Content-Type: application/json
     {"id": "5595df4f-c10b-488b-84e6-f439f645b8cc", "dayVisit": 2},
     {"id": "66001fd1-0821-4826-b431-0cb098ea4b67", "dayVisit": 3}
 ]
+
+###
+PUT {{backend_HostAddress}}/tour/placestostay
+Content-Type: application/json
+
+[
+    {"id": "1600de52-83ff-4508-bf85-4d401960eb7d", "isSelected": true},
+    {"id": "1c3f8e68-4448-488e-a34b-ee679622a6ce", "isSelected": false},
+    {"id": "502d3cfc-8739-4dc3-9b0d-9240f33c8bb9", "isSelected": true},
+    {"id": "37391ff8-ed2e-444e-a0b1-a5d69b7414da", "isSelected": false}
+]
+
+###
+PUT {{backend_HostAddress}}/tour/transportation
+Content-Type: application/json
+
+{
+    "oldTransportId": "2381d01f-8339-4abb-bfdc-b3e52239620e",
+    "newTransportId": "a2d2d4ab-f203-4243-98de-66b738214306"
+}

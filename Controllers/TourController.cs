@@ -258,12 +258,52 @@ namespace backend.Controllers
                 await place.Update<PlaceToVisit>();
             }
 
-            return Ok("Update Successful");
+            return Ok("Update Places To Visit Successful");
+        }
+
+        [HttpPut("placestostay")]
+        public async Task<IActionResult> UpdateTourPlacesToStay([FromBody] List<UpdateTourPlacesToStayDto> updates)
+        {
+            var client = _supabaseService.GetClient();
+
+            foreach (var update in updates)
+            {
+                var placeId = Guid.Parse(update.Id);
+                var place = await client.From<PlaceToStay>().Where(place => place.Id == placeId).Single();
+
+                if (place?.IsSelected == null) continue;
+
+                place.IsSelected = update.IsSelected;
+                await place.Update<PlaceToStay>();
+            }
+
+            return Ok("Update Places To Stay Successful");
+        }
+
+        [HttpPut("transportation")]
+        public async Task<IActionResult> UpdateTourTransportation([FromBody] UpdateTourTransportationDto update)
+        {
+            var client = _supabaseService.GetClient();
+
+            var OldTransportId = Guid.Parse(update.OldTransportId);
+            var NewTransportId = Guid.Parse(update.NewTransportId);
+
+            var oldTransport = await client.From<Transportation>().Where(transport => transport.Id == OldTransportId).Single();
+            var newTransport = await client.From<Transportation>().Where(transport => transport.Id == NewTransportId).Single();
+
+            if (oldTransport?.IsSelected == null || newTransport?.IsSelected == null) return BadRequest("Transportation does not exist");
+
+            oldTransport.IsSelected = false;
+            newTransport.IsSelected = true;
+
+            await oldTransport.Update<Transportation>();
+            await newTransport.Update<Transportation>();
+
+            return Ok("Update Transportation Successful");
         }
     }
 
-    public class CreateTourRequest
-    {
+    public class CreateTourRequest {
         public string UserId { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
         public string TravelType { get; set; } = string.Empty;
@@ -273,9 +313,18 @@ namespace backend.Controllers
         public int MaxBugget { get; set; }
     }
 
-    public class UpdateTourPlacesToVisitDto
-    {
+    public class UpdateTourPlacesToVisitDto {
         public string Id { get; set; } = string.Empty;
         public int DayVisit { get; set; }
+    }
+
+    public class UpdateTourPlacesToStayDto {
+        public string Id { get; set; } = string.Empty;
+        public bool IsSelected { get; set; }
+    }
+
+    public class UpdateTourTransportationDto {
+        public string OldTransportId { get; set; } = string.Empty;
+        public string NewTransportId { get; set; } = string.Empty;
     }
 }
