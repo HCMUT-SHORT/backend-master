@@ -29,7 +29,7 @@ namespace backend.Controllers
             TASK:
             Generate a detailed tour plan from Ho Chi Minh City to {request.Destination}
             from {request.CheckInDate} to {request.CheckOutDate}.
-            The plan must be suitable for {request.TravelType}, with a budget between {request.MinBugget} and {request.MaxBugget} VND.
+            The plan must be suitable for {request.TravelType}, with a budget between {request.MinBudget} and {request.MaxBudget} VND.
             All prices, including transportation, ticket_price, and hotel prices, MUST be in Vietnamese đồng (VND), even if the destination is outside Vietnam.
             Must have 4 type of transportation: flight, train, bus, self-drive. But if it not possbile to travel from Ho Chi Minh to {request.Destination}, fill detail field not possible.
             Write all text in Vietnamese. Keep each 'details' field 1–2 sentences long.
@@ -98,6 +98,7 @@ namespace backend.Controllers
 
             var destinationImage = await FetchImageUrlAsync(request.Destination);
             var newTourId = await GenerateUniqueTourIdAsync();
+            var vietnamTime = DateTime.UtcNow.AddHours(7);
 
             var newTour = new Tour
             {
@@ -106,10 +107,10 @@ namespace backend.Controllers
                 Destination = request.Destination,
                 CheckInDate = request.CheckInDate,
                 CheckOutDate = request.CheckOutDate,
-                MinBugget = request.MinBugget,
-                MaxBugget = request.MaxBugget,
+                MinBudget = request.MinBudget,
+                MaxBudget = request.MaxBudget,
                 TravelType = request.TravelType,
-                CreatedAt = DateTime.Today,
+                CreatedAt = vietnamTime,
                 CreatedBy = Guid.Parse(request.UserId)
             };
 
@@ -232,6 +233,14 @@ namespace backend.Controllers
             return newId;
         }
 
+        [HttpGet("getUserTours/{id}")]
+        public async Task<IActionResult> GetUserTours(string id)
+        {
+            var userId = Guid.Parse(id);
+            var tours = await _supabaseService.GetClient().From<Tour>().Where(t => t.CreatedBy == userId).Get();
+            return Ok(tours.Content);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTour(string id)
         {
@@ -331,8 +340,8 @@ namespace backend.Controllers
         public string TravelType { get; set; } = string.Empty;
         public string CheckInDate { get; set; } = string.Empty;
         public string CheckOutDate { get; set; } = string.Empty;
-        public int MinBugget { get; set; }
-        public int MaxBugget { get; set; }
+        public int MinBudget { get; set; }
+        public int MaxBudget { get; set; }
     }
 
     public class UpdateTourPlacesToVisitDto {

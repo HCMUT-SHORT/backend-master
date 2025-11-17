@@ -22,17 +22,17 @@ namespace backend.Models
         [Column("checkoutdate")]
         public string? CheckOutDate { get; set; }
 
-        [Column("minBugget")]
-        public long? MinBugget { get; set; }
+        [Column("minBudget")]
+        public long? MinBudget { get; set; }
 
-        [Column("maxBugget")]
-        public long? MaxBugget { get; set; }
+        [Column("maxBudget")]
+        public long? MaxBudget { get; set; }
 
         [Column("travelType")]
         public string? TravelType { get; set; }
 
         [Column("createdBy")]
-        public Guid? CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
 
         [Column("createdAt")]
         public DateTime? CreatedAt { get; set; }

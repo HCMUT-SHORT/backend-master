@@ -30,11 +30,15 @@ Content-Type: application/json
     "Destination": "Osaka",
     "CheckInDate": "21/2/2025",
     "CheckOutDate": "23/2/2025",
-    "MinBugget": "6000000",
-    "MaxBugget": "12000000",
+    "MinBudget": "6000000",
+    "MaxBudget": "12000000",
     "TravelType": "Exploration",
     "UserId": "7e4229ac-2014-46d1-9bd6-2591fe6a9a85"
 }
+
+###
+GET {{backend_HostAddress}}/tour/getUserTours/7e4229ac-2014-46d1-9bd6-2591fe6a9a85
+Content-Type: application/json
 
 ###
 GET {{backend_HostAddress}}/tour/958bf228-72d9-4cc3-abc3-529208228147
