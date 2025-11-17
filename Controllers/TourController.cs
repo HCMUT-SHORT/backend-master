@@ -30,7 +30,7 @@ namespace backend.Controllers
             Generate a detailed tour plan from Ho Chi Minh City to {request.Destination}
             from {request.CheckInDate} to {request.CheckOutDate}.
             The plan must be suitable for {request.TravelType}, with a budget between {request.MinBudget} and {request.MaxBudget} VND.
-            All prices, including transportation, ticket_price, and hotel prices, MUST be in Vietnamese đồng (VND), even if the destination is outside Vietnam.
+            All prices, including transportation, ticket_price, and hotel prices, MUST be convert into Vietnamese đồng (VND), even if the destination is outside Vietnam.
             Must have 4 type of transportation: flight, train, bus, self-drive. But if it not possbile to travel from Ho Chi Minh to {request.Destination}, fill detail field not possible.
             Write all text in Vietnamese. Keep each 'details' field 1–2 sentences long.
 
