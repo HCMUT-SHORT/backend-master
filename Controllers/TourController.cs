@@ -97,8 +97,11 @@ namespace backend.Controllers
             ";
 
             var destinationImage = await FetchImageUrlAsync(request.Destination);
+            var newTourId = await GenerateUniqueTourIdAsync();
+
             var newTour = new Tour
             {
+                Id = newTourId,
                 ImageUrl = destinationImage,
                 Destination = request.Destination,
                 CheckInDate = request.CheckInDate,
@@ -208,6 +211,25 @@ namespace backend.Controllers
             {
                 return null;
             }
+        }
+
+        private async Task<Guid> GenerateUniqueTourIdAsync()
+        {
+            var client = _supabaseService.GetClient();
+            Guid newId;
+
+            while (true)
+            {
+                newId = Guid.NewGuid();
+
+                var existed = await client.From<Tour>().Where(t => t.Id == newId).Get();
+
+                if (existed.Models.Count == 0)
+                {
+                    break;
+                } 
+            }
+            return newId;
         }
 
         [HttpGet("{id}")]
