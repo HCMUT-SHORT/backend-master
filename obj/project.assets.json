@@ -5156,11 +5156,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/ngocnhon/Desktop/backend/backend.csproj",
+      "projectUniqueName": "/Users/ngocnhon/Desktop/backend-master/backend.csproj",
       "projectName": "backend",
-      "projectPath": "/Users/ngocnhon/Desktop/backend/backend.csproj",
+      "projectPath": "/Users/ngocnhon/Desktop/backend-master/backend.csproj",
       "packagesPath": "/Users/ngocnhon/.nuget/packages/",
-      "outputPath": "/Users/ngocnhon/Desktop/backend/obj/",
+      "outputPath": "/Users/ngocnhon/Desktop/backend-master/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/ngocnhon/.nuget/NuGet/NuGet.Config"
