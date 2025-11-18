@@ -28,8 +28,8 @@ Content-Type: application/json
 
 {
     "Destination": "Osaka",
-    "CheckInDate": "21/2/2025",
-    "CheckOutDate": "23/2/2025",
+    "CheckInDate": "2026-02-21",
+    "CheckOutDate": "2026-02-23",
     "MinBudget": "6000000",
     "MaxBudget": "12000000",
     "TravelType": "Exploration",

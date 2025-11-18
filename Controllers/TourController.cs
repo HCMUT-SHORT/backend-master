@@ -192,7 +192,7 @@ namespace backend.Controllers
             }
             await _supabaseService.GetClient().From<PlaceToStay>().Insert(placesToStayList);
 
-            return Ok(new { insertTourId });
+            return Ok(insertTour.Content);
         }
 
         private async Task<string?> FetchImageUrlAsync(string placeName)
