@@ -25,7 +25,7 @@ namespace backend.Models
         public string? BestTimeToVisit { get; set; }
 
         [Column("dayVisit")]
-        public int? DayVisit { get; set; }
+        public string? DayVisit { get; set; }
 
         [Column("rating")]
         public float? Rating { get; set; }

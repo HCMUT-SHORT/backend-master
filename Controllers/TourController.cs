@@ -165,7 +165,7 @@ namespace backend.Controllers
                     Price = item.GetProperty("ticketprice").GetInt64(),
                     Rating = (float?)item.GetProperty("rating").GetDouble(),
                     TotalRating = item.GetProperty("totaluserrating").GetInt64(),
-                    DayVisit = 0
+                    DayVisit = ""
                 });
             }
             await _supabaseService.GetClient().From<PlaceToVisit>().Insert(placesToVisitList);
@@ -346,7 +346,7 @@ namespace backend.Controllers
 
     public class UpdateTourPlacesToVisitDto {
         public string Id { get; set; } = string.Empty;
-        public int DayVisit { get; set; }
+        public string DayVisit { get; set; } = string.Empty;
     }
 
     public class UpdateTourPlacesToStayDto {
