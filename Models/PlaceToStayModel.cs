@@ -18,6 +18,9 @@ namespace backend.Models
         [Column("imageUrl")]
         public string? ImageUrl { get; set; }
 
+        [Column("bookingUrl")]
+        public string? BookingUrl { get; set; }
+
         [Column("price")]
         public long? Price { get; set; }
 

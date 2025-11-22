@@ -178,11 +178,13 @@ namespace backend.Controllers
                 if (string.IsNullOrWhiteSpace(placeName)) continue;
 
                 var imageUrl = await FetchImageUrlAsync(placeName);
+                var bookingUrl = await FetchBookingUrlAsync(placeName);
                 placesToStayList.Add(new PlaceToStay
                 {
                     TourId = insertTourId,
                     Name = placeName,
                     ImageUrl = imageUrl,
+                    BookingUrl = bookingUrl,
                     Detail = item.GetProperty("details").GetString(),
                     Price = item.GetProperty("price").GetInt64(),
                     Rating = (float?)item.GetProperty("rating").GetDouble(),
@@ -214,6 +216,24 @@ namespace backend.Controllers
             }
         }
 
+        private async Task<string?> FetchBookingUrlAsync(string placeName)
+        {
+            try
+            {
+                var url = $"https://image-search-production-8ec2.up.railway.app/hotel/{Uri.EscapeDataString(placeName)}";
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                using var stream = await response.Content.ReadAsStreamAsync();
+                using var doc = await JsonDocument.ParseAsync(stream);
+                return doc.RootElement.TryGetProperty("booking_url", out var hotelProp) ? hotelProp.GetString() : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private async Task<Guid> GenerateUniqueTourIdAsync()
         {
             var client = _supabaseService.GetClient();
@@ -228,7 +248,7 @@ namespace backend.Controllers
                 if (existed.Models.Count == 0)
                 {
                     break;
-                } 
+                }
             }
             return newId;
         }
