@@ -12,8 +12,8 @@ namespace backend.Models
         [Column("type")]
         public string? Type { get; set; }
 
-        [Column("detail")]
-        public string? Detail { get; set; }
+        [Column("time")]
+        public string? Time { get; set; }
 
         [Column("price")]
         public long? Price { get; set; }
@@ -23,6 +23,9 @@ namespace backend.Models
 
         [Column("isSelected")]
         public bool? IsSelected { get; set; }
+
+        [Column("isPossible")]
+        public bool? IsPossible { get; set; }
 
         [Column("tourId")]
         public Guid TourId { get; set; } 

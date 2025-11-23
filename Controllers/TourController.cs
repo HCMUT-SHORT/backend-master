@@ -39,25 +39,29 @@ namespace backend.Controllers
             ""transportation"": [
                 {{
                     ""type"": ""flight"",
-                    ""details"": ""string"",
+                    ""ammountoftime"": ""string"",
                     ""price"": number,
                     ""bookingurl"": ""string or empty"",
+                    ""ispossible"": boolean,
                 }},
                 {{
                     ""type"": ""train"",
-                    ""details"": ""string"",
+                    ""ammountoftime"": ""string"",
                     ""price"": number,
                     ""bookingurl"": ""string or empty"",
+                    ""ispossible"": boolean,
                 }},
                     ""type"": ""bus"",
-                    ""details"": ""string"",
+                    ""ammountoftime"": ""string"",
                     ""price"": number,
                     ""bookingurl"": ""string or empty"",
+                    ""ispossible"": boolean,
                 }},
                     ""type"": ""self-drive"",
-                    ""details"": ""string"",
+                    ""ammountoftime"": ""string"",
                     ""price"": number,
-                    ""bookingurl"": ""Empty"",
+                    ""bookingurl"": Empty,
+                    ""ispossible"": boolean,
                 }}
             ],
             ""places_to_visit"": [
@@ -139,9 +143,10 @@ namespace backend.Controllers
                 {
                     TourId = insertTourId,
                     Type = item.GetProperty("type").GetString(),
-                    Detail = item.GetProperty("details").GetString(),
+                    Time = item.GetProperty("ammountoftime").GetString(),
                     Price = item.GetProperty("price").GetInt64(),
                     BookingUrl = item.GetProperty("bookingurl").GetString(),
+                    IsPossible = item.GetProperty("ispossible").GetBoolean(),
                     IsSelected = false
                 });
             }
