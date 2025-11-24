@@ -337,23 +337,20 @@ namespace backend.Controllers
         }
 
         [HttpPut("transportation")]
-        public async Task<IActionResult> UpdateTourTransportation([FromBody] UpdateTourTransportationDto update)
+        public async Task<IActionResult> UpdateTourTransportation([FromBody] List<UpdateTourTransportationDto> updates)
         {
             var client = _supabaseService.GetClient();
 
-            var OldTransportId = Guid.Parse(update.OldTransportId);
-            var NewTransportId = Guid.Parse(update.NewTransportId);
+            foreach (var update in updates)
+            {
+                var transportId = Guid.Parse(update.Id);
+                var transport = await client.From<Transportation>().Where(transport => transport.Id == transportId).Single();
 
-            var oldTransport = await client.From<Transportation>().Where(transport => transport.Id == OldTransportId).Single();
-            var newTransport = await client.From<Transportation>().Where(transport => transport.Id == NewTransportId).Single();
+                if (transport?.IsSelected == null) continue;
 
-            if (oldTransport?.IsSelected == null || newTransport?.IsSelected == null) return BadRequest("Transportation does not exist");
-
-            oldTransport.IsSelected = false;
-            newTransport.IsSelected = true;
-
-            await oldTransport.Update<Transportation>();
-            await newTransport.Update<Transportation>();
+                transport.IsSelected = update.IsSelected;
+                await transport.Update<Transportation>();
+            }
 
             return Ok("Update Transportation Successful");
         }
@@ -380,7 +377,7 @@ namespace backend.Controllers
     }
 
     public class UpdateTourTransportationDto {
-        public string OldTransportId { get; set; } = string.Empty;
-        public string NewTransportId { get; set; } = string.Empty;
+        public string Id { get; set; } = string.Empty;
+        public bool IsSelected { get; set; }
     }
 }
