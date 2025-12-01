@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using backend.Models;
+using Supabase;
+using Supabase.Postgrest;
 
 namespace backend.Controllers
 {
@@ -354,6 +356,128 @@ namespace backend.Controllers
 
             return Ok("Update Transportation Successful");
         }
+
+        [HttpPost("share/{tourId}")]
+        public async Task<IActionResult> CreateShare(string tourId)
+        {
+            var client = _supabaseService.GetClient();
+
+            if (!Guid.TryParse(tourId, out Guid tourGuid))
+                return BadRequest("Invalid tour ID");
+
+            string authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized("Missing Authorization header");
+
+            string jwt = authHeader["Bearer ".Length..].Trim();
+
+            var user = await client.Auth.GetUser(jwt);
+            if (user == null)
+                return Unauthorized("Invalid token");
+
+            Guid userGuid = Guid.Parse(user.Id);
+            var existingShare = await client.From<Share>()
+                .Where(s => s.TourId == tourGuid)
+                .Get();
+
+            if (existingShare.Models.Count > 0)
+            {
+                var existing = existingShare.Models[0];
+                return Ok(new { code = existing.Code });
+            }
+
+            string code = Share.GenerateShareCode(tourGuid);
+
+            var share = new Share
+            {
+                TourId = tourGuid,
+                UserId = userGuid, 
+                Code = code
+            };
+
+            await client.From<Share>().Insert(share);
+
+            return Ok(new { code });
+        }
+
+        [HttpGet("lookup/{code}")]
+        public async Task<IActionResult> LookupShare(string code)
+        {
+            var cd = code.ToUpper();
+
+            var client = _supabaseService.GetClient();
+            
+            var tourShare = await client
+                .From<Share>()
+                .Filter("code", Constants.Operator.Equals, cd)
+                .Get();
+        
+            if (tourShare.Models.Count == 0)
+                return NotFound("Invalid share code");
+
+            var share = tourShare.Models[0];
+
+            var tourResult = await client.From<Tour>()
+                .Where(t => t.Id == share.TourId)
+                .Get();
+
+            if (tourResult.Models.Count == 0)
+                return NotFound("Tour not found");
+
+            return Ok(tourResult.Content);
+        }
+
+        [HttpPost("join")]
+        public async Task<IActionResult> JoinTour([FromBody] JoinTourRequest request)
+        {
+            var client = _supabaseService.GetClient();
+
+            string authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized("Missing token");
+            string jwt = authHeader["Bearer ".Length..].Trim();
+
+            var user = await client.Auth.GetUser(jwt);
+            if (user == null)
+                return Unauthorized("Invalid token");
+
+            Guid guestId = Guid.Parse(user.Id);
+
+            var shareResult = await client
+                .From<Share>()
+                .Where(s => s.Code == request.Code)
+                .Get();
+
+            if (shareResult.Models.Count == 0)
+                return NotFound("Invalid share code");
+
+            var ownerShare = shareResult.Models[0];
+            var existing = await client
+                .From<Share>()
+                .Where(s => s.TourId == ownerShare.TourId && s.UserId == guestId)
+                .Get();
+
+            if (existing.Models.Count > 0)
+                return Ok(new { message = "Already joined" });
+
+            var joinRow = new Share
+            {
+                TourId = ownerShare.TourId,
+                UserId = guestId,
+                Code = null
+            };
+
+            await client.From<Share>().Insert(joinRow);
+
+            return Ok(new { message = "Joined successfully", tourId = ownerShare.TourId });
+        }
+
+
+    }
+
+    public class JoinTourRequest
+    {
+        public string Code { get; set; } = string.Empty;
     }
 
     public class CreateTourRequest {
