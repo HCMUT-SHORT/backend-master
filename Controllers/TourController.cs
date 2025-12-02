@@ -472,6 +472,57 @@ namespace backend.Controllers
             return Ok(new { message = "Joined successfully", tourId = ownerShare.TourId });
         }
 
+        [HttpGet("getSharedTours/{userId}")]
+        public async Task<IActionResult> GetSharedTours(string userId)
+        {
+            var client = _supabaseService.GetClient();
+            if (!Guid.TryParse(userId, out Guid userGuid))
+                return BadRequest("Invalid user ID");
+
+            var sharesResult = await client
+                .From<Share>()
+                .Where(t => t.UserId == userGuid)
+                .Get();
+
+            // Console.WriteLine("share:", sharesResult.Content);
+            if (sharesResult.Models.Count == 0)
+                return Ok(new List<object>()); 
+
+            var tourIds = sharesResult.Models
+                .Select(s => s.TourId)
+                .Distinct()
+                .ToList();
+            
+            var tours = new List<Tour>();
+
+            foreach (var tid in tourIds)
+            {
+                var tourResult = await client
+                    .From<Tour>()
+                    .Filter("id", Constants.Operator.Equals, tid.ToString())
+                    .Get();
+
+                if (tourResult.Models.Count > 0)
+                {
+                    tours.Add(tourResult.Models[0]);
+                }
+            }
+            
+            var final = tours.Select(t => new ShareTour
+            {
+                Id = t.Id,
+                Destination = t.Destination,
+                ImageUrl = t.ImageUrl,
+                CheckInDate = t.CheckInDate,
+                CheckOutDate = t.CheckOutDate,
+                TravelType = t.TravelType,
+                MinBudget = t.MinBudget,
+                MaxBudget = t.MaxBudget
+                
+            }).ToList();
+
+            return Ok(final);
+        }
 
     }
 
@@ -479,6 +530,18 @@ namespace backend.Controllers
     {
         public string Code { get; set; } = string.Empty;
     }
+    public class ShareTour
+    {
+        public Guid Id { get; set; }
+        public string Destination { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public string CheckInDate { get; set; } = string.Empty;
+        public string CheckOutDate { get; set; } = string.Empty;
+        public long? MinBudget { get; set; }
+        public long? MaxBudget { get; set; }
+        public string TravelType { get; set; } = string.Empty;
+    }
+
 
     public class CreateTourRequest {
         public string UserId { get; set; } = string.Empty;
