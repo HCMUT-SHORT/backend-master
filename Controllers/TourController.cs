@@ -517,7 +517,8 @@ namespace backend.Controllers
                 CheckOutDate = t.CheckOutDate,
                 TravelType = t.TravelType,
                 MinBudget = t.MinBudget,
-                MaxBudget = t.MaxBudget
+                MaxBudget = t.MaxBudget,
+                CreatedAt = t.CreatedAt
                 
             }).ToList();
 
@@ -540,6 +541,7 @@ namespace backend.Controllers
         public long? MinBudget { get; set; }
         public long? MaxBudget { get; set; }
         public string TravelType { get; set; } = string.Empty;
+        public DateTime? CreatedAt {get; set; }
     }
 
 
