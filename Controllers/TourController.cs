@@ -458,7 +458,7 @@ namespace backend.Controllers
                 .Get();
 
             if (existing.Models.Count > 0)
-                return Ok(new { message = "Already joined" });
+                return Ok(new { message = "Already joined", tourId = ownerShare.TourId });
 
             var joinRow = new Share
             {
